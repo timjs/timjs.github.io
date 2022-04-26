@@ -4373,6 +4373,7 @@ var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
 var $author$project$Interface$init = {
+	query: '',
 	year1: $elm$core$Result$Err(''),
 	year2: $elm$core$Result$Err('')
 };
@@ -5220,10 +5221,10 @@ var $author$project$Interface$checkInput = function (str) {
 		var _v0 = $elm$core$String$toInt(str);
 		if (_v0.$ === 'Just') {
 			var y = _v0.a;
-			return ((2000 <= y) && (y <= 2021)) ? $elm$core$Result$Ok(y) : $elm$core$Result$Err(
+			return ((2018 <= y) && (y <= 2021)) ? $elm$core$Result$Ok(y) : $elm$core$Result$Err(
 				$author$project$Interface$unwords(
 					_List_fromArray(
-						['in', str, 'was geen Top 2000'])));
+						['ik heb geen data voor het jaar', str])));
 		} else {
 			return $elm$core$Result$Err(
 				$author$project$Interface$unwords(
@@ -5234,27 +5235,80 @@ var $author$project$Interface$checkInput = function (str) {
 };
 var $author$project$Interface$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'Year1') {
-			var str = msg.a;
-			return _Utils_update(
-				model,
-				{
-					year1: $author$project$Interface$checkInput(str)
-				});
-		} else {
-			var str = msg.a;
-			return _Utils_update(
-				model,
-				{
-					year2: $author$project$Interface$checkInput(str)
-				});
+		switch (msg.$) {
+			case 'Year1':
+				var str = msg.a;
+				return _Utils_update(
+					model,
+					{
+						year1: $author$project$Interface$checkInput(str)
+					});
+			case 'Year2':
+				var str = msg.a;
+				return _Utils_update(
+					model,
+					{
+						year2: $author$project$Interface$checkInput(str)
+					});
+			default:
+				var str = msg.a;
+				return _Utils_update(
+					model,
+					{query: str});
 		}
 	});
+var $author$project$Interface$Query = function (a) {
+	return {$: 'Query', a: a};
+};
 var $author$project$Interface$Year1 = function (a) {
 	return {$: 'Year1', a: a};
 };
 var $author$project$Interface$Year2 = function (a) {
 	return {$: 'Year2', a: a};
+};
+var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$html$Html$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+};
+var $author$project$Interface$dataInput = function (ctor) {
+	return A2(
+		$elm$html$Html$input,
+		_List_fromArray(
+			[
+				$elm$html$Html$Events$onInput(ctor)
+			]),
+		_List_Nil);
 };
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
@@ -5287,7 +5341,30 @@ var $author$project$Interface$showResult = function (r) {
 		return $author$project$Interface$red(str);
 	}
 };
+var $elm$core$String$toLower = _String_toLower;
+var $author$project$Interface$byQuery = F2(
+	function (q, _v0) {
+		var _v1 = _v0.a;
+		var a = _v1.a;
+		var t = _v1.b;
+		var s = _v0.b;
+		var t_ = $elm$core$String$toLower(t);
+		var q_ = $elm$core$String$toLower(q);
+		var a_ = $elm$core$String$toLower(a);
+		return $elm$core$String$isEmpty(q_) ? true : (A2($elm$core$String$contains, q_, a_) || A2($elm$core$String$contains, q_, t_));
+	});
 var $author$project$Interface$empty = A2($elm$html$Html$div, _List_Nil, _List_Nil);
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
 var $elm$core$Basics$compare = _Utils_compare;
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
@@ -9186,8 +9263,8 @@ var $author$project$Simple$trends = function (_v0) {
 		$elm_community$list_extra$List$Extra$unique(
 			_Utils_ap(y1, y2)));
 };
-var $author$project$Interface$trendsTable = F2(
-	function (r1, r2) {
+var $author$project$Interface$trendsTable = F3(
+	function (r1, r2, q) {
 		var _v0 = _Utils_Tuple2(r1, r2);
 		if ((_v0.a.$ === 'Ok') && (_v0.b.$ === 'Ok')) {
 			var y1 = _v0.a.a;
@@ -9199,8 +9276,11 @@ var $author$project$Interface$trendsTable = F2(
 				var es1 = _v1.a.a;
 				var es2 = _v1.b.a;
 				return $author$project$Interface$showTable(
-					$author$project$Simple$trends(
-						_Utils_Tuple2(es1, es2)));
+					A2(
+						$elm$core$List$filter,
+						$author$project$Interface$byQuery(q),
+						$author$project$Simple$trends(
+							_Utils_Tuple2(es1, es2))));
 			} else {
 				return $author$project$Interface$empty;
 			}
@@ -9208,50 +9288,6 @@ var $author$project$Interface$trendsTable = F2(
 			return $author$project$Interface$empty;
 		}
 	});
-var $elm$html$Html$input = _VirtualDom_node('input');
-var $elm$html$Html$Events$alwaysStop = function (x) {
-	return _Utils_Tuple2(x, true);
-};
-var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
-	return {$: 'MayStopPropagation', a: a};
-};
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var $elm$html$Html$Events$stopPropagationOn = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
-	});
-var $elm$json$Json$Decode$field = _Json_decodeField;
-var $elm$json$Json$Decode$at = F2(
-	function (fields, decoder) {
-		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
-	});
-var $elm$json$Json$Decode$string = _Json_decodeString;
-var $elm$html$Html$Events$targetValue = A2(
-	$elm$json$Json$Decode$at,
-	_List_fromArray(
-		['target', 'value']),
-	$elm$json$Json$Decode$string);
-var $elm$html$Html$Events$onInput = function (tagger) {
-	return A2(
-		$elm$html$Html$Events$stopPropagationOn,
-		'input',
-		A2(
-			$elm$json$Json$Decode$map,
-			$elm$html$Html$Events$alwaysStop,
-			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
-};
-var $author$project$Interface$yearInput = function (ctor) {
-	return A2(
-		$elm$html$Html$input,
-		_List_fromArray(
-			[
-				$elm$html$Html$Events$onInput(ctor)
-			]),
-		_List_Nil);
-};
 var $author$project$Interface$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
@@ -9272,7 +9308,7 @@ var $author$project$Interface$view = function (model) {
 					[
 						$elm$html$Html$text('Vergelijk')
 					])),
-				$author$project$Interface$yearInput($author$project$Interface$Year1),
+				$author$project$Interface$dataInput($author$project$Interface$Year1),
 				$author$project$Interface$showResult(model.year1),
 				A2(
 				$elm$html$Html$p,
@@ -9281,10 +9317,18 @@ var $author$project$Interface$view = function (model) {
 					[
 						$elm$html$Html$text('met')
 					])),
-				$author$project$Interface$yearInput($author$project$Interface$Year2),
+				$author$project$Interface$dataInput($author$project$Interface$Year2),
 				$author$project$Interface$showResult(model.year2),
+				A2(
+				$elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Filter: '),
+						$author$project$Interface$dataInput($author$project$Interface$Query)
+					])),
 				A2($elm$html$Html$p, _List_Nil, _List_Nil),
-				A2($author$project$Interface$trendsTable, model.year1, model.year2)
+				A3($author$project$Interface$trendsTable, model.year1, model.year2, model.query)
 			]));
 };
 var $author$project$Interface$main = $elm$browser$Browser$sandbox(
